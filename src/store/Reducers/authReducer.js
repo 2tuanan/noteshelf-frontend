@@ -10,7 +10,9 @@ export const admin_login = createAsyncThunk(
             localStorage.setItem('accessToken', data.token)
             return fulfillWithValue(data);
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            console.error('admin_login error:', error);
+            const err = error.response?.data || {error: error.message || 'An error occurred'};
+            return rejectWithValue(err);
         }
     }
 )
@@ -24,8 +26,9 @@ export const user_login = createAsyncThunk(
             // console.log(data);
             return fulfillWithValue(data);
         } catch (error) {
-            // console.log(error.response.data);
-            return rejectWithValue(error.response.data);
+            console.error('user_login error:', error);
+            const err = error.response?.data || {error: error.message || 'An error occurred'};
+            return rejectWithValue(err);
         }
     }
 )
@@ -37,7 +40,9 @@ export const get_user_info = createAsyncThunk(
             const {data} = await api.get('/get-user', {withCredentials: true})
             return fulfillWithValue(data);
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            console.error('get_user_info error:', error);
+            const err = error.response?.data || {error: error.message || 'An error occurred'};
+            return rejectWithValue(err);
         }
     }
 )
@@ -47,11 +52,13 @@ export const user_register = createAsyncThunk(
     async(info, {rejectWithValue, fulfillWithValue}) => {
         try {
             const {data} = await api.post('/user-register', info, {withCredentials: true})
+            console.log('Register success:', data);
             localStorage.setItem('accessToken', data.token)
-            // console.log(data);
             return fulfillWithValue(data);
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            console.error('Register error:', error);
+            const err = error.response?.data || {error: error.message || 'An error occurred'};
+            return rejectWithValue(err);
         }
     }
 )
@@ -66,7 +73,9 @@ export const logout = createAsyncThunk(
             else navigate('/login')
             return fulfillWithValue(data);
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            console.error('logout error:', error);
+            const err = error.response?.data || {error: error.message || 'An error occurred'};
+            return rejectWithValue(err);
             
         }
     }
@@ -110,7 +119,7 @@ export const authReducer = createSlice({
         })
         .addCase(admin_login.rejected, (state, {payload}) => {
             state.loader = false;
-            state.errorMessage = payload.error;
+            state.errorMessage = payload?.error || 'An error occurred';
         })
         .addCase(admin_login.fulfilled, (state, {payload}) => {
             state.loader = false;
@@ -123,7 +132,7 @@ export const authReducer = createSlice({
         })
         .addCase(user_login.rejected, (state, {payload}) => {
             state.loader = false;
-            state.errorMessage = payload.error;
+            state.errorMessage = payload?.error || 'An error occurred';
         })
         .addCase(user_login.fulfilled, (state, {payload}) => {
             state.loader = false;
@@ -136,7 +145,7 @@ export const authReducer = createSlice({
         })
         .addCase(user_register.rejected, (state, {payload}) => {
             state.loader = false;
-            state.errorMessage = payload.error;
+            state.errorMessage = payload?.error || 'An error occurred';
         })
         .addCase(user_register.fulfilled, (state, {payload}) => {
             state.loader = false;
