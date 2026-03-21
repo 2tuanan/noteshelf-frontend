@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { user_login, messageClear } from '../../store/Reducers/authReducer';
+import { user_login, messageClear, get_user_info } from '../../store/Reducers/authReducer';
 import { BeatLoader } from 'react-spinners';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const {loader, errorMessage, successMessage} = useSelector(state => state.auth)
+    const {loader, errorMessage, successMessage, role} = useSelector(state => state.auth)
 
     const [state, setState] = useState({
         email: '',
@@ -35,9 +35,18 @@ const Login = () => {
         if (successMessage){
             toast.success(successMessage)
             dispatch(messageClear())
-            navigate('/')
+            dispatch(get_user_info())
         }
-    }, [errorMessage, successMessage])
+    }, [errorMessage, successMessage, dispatch])
+
+    useEffect(() => {
+        if (role === 'user') {
+            navigate('/user')
+        }
+        if (role === 'admin') {
+            navigate('/admin')
+        }
+    }, [role])
 
     const overrideStyle = {
         display: 'flex',
