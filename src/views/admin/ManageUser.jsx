@@ -42,12 +42,12 @@ const ManageUser = () => {
     }
 
     return (
-        <div className='px-4 mt-8 font-montserrat'>
+        <div className='px-4 mt-8 font-montserrat bg-gray-100 dark:bg-gray-900 dark:text-white transition-colors duration-200'>
             <h1 className='text-2xl font-bold mb-4 text-center'>Management</h1>
-            <div className='max-w-[800px] mx-auto bg-[#fff] p-4 rounded-lg shadow-md'>
+            <div className='max-w-[800px] mx-auto bg-[#fff] p-4 rounded-lg shadow-md border border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 transition-colors duration-200'>
                 {users.length > 0 ? (
                     users.map((user) => (
-                        <div key={user._id} className='bg-[#f9f9f9] p-3 mb-5 rounded-lg shadow-sm'>
+                        <div key={user._id} className='bg-[#f9f9f9] p-3 mb-5 rounded-lg shadow-sm border border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 transition-colors duration-200'>
                             <h2 className='text-lg font-semibold mb-1'>{user.name}</h2>
                             <p className='text-sm mb-1'>Email: {user.email}</p>
                             <p className='text-sm mb-3'>Total Notes: <span className='font-medium'>{user.noteTotal || 0}</span></p>
@@ -72,7 +72,7 @@ const ManageUser = () => {
                         </div>
                     ))
                 ) : (
-                    <p className='text-center text-gray-500'>No users found</p>
+                    <p className='text-center text-gray-500 dark:text-gray-300'>No users found</p>
                 )}
             </div>
         </div>

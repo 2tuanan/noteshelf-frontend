@@ -35,7 +35,7 @@ const Note = (props) => {
     };
     
     return (
-        <div className='bg-[#fff] p-2 ml-3 mb-4 sm:m-4 w-[170px] sm:w-[240px] float-left shadow-md rounded-lg border'>
+        <div className='bg-[#fff] p-2 ml-3 mb-4 sm:m-4 w-[170px] sm:w-[240px] float-left shadow-md rounded-lg border dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:shadow-gray-700/30 transition-colors duration-200'>
             {!isEditing ? (
                 <>
                     <h1 className='text-sm sm:text-base mb-1'>{props.title}</h1>
@@ -51,12 +51,12 @@ const Note = (props) => {
                         type='text'
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
-                        className='text-sm sm:text-base mb-2 w-full border rounded px-2 py-1'
+                        className='text-sm sm:text-base mb-2 w-full border rounded px-2 py-1 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400 transition-colors duration-200'
                     />
                     <textarea
                         value={editContent}
                         onChange={(e) => setEditContent(e.target.value)}
-                        className='text-sm sm:text-base mb-2 w-full border rounded px-2 py-1'
+                        className='text-sm sm:text-base mb-2 w-full border rounded px-2 py-1 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400 transition-colors duration-200'
                         rows={4}
                     />
                     <button

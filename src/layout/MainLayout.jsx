@@ -1,13 +1,16 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 
 const MainLayout = () => {
+    const darkMode = useSelector(state => state.theme.darkMode);
+
     return (
-        <div className='flex flex-col min-h-screen'>
+        <div className={`flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200 ${darkMode ? 'dark' : ''}`}>
             <Header />
-            <main className='flex-grow'>
+            <main className='flex-grow bg-gray-100 dark:bg-gray-900 transition-colors duration-200'>
                 <Outlet />
             </main>
             <Footer />
