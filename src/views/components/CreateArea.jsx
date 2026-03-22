@@ -12,13 +12,13 @@ const CreateArea = ({ input, handleChange, submitHandler, isExpanded, setIsExpan
         alignItems: 'center',
     }
     return (
-        <div className='font-montserrat px-4'>
-            <form onSubmit={submitHandler} action="" className='relative w-full sm:w-[480px] mt-8 mb-7 sm:mb-5 mx-auto bg-[#fff] p-4 box-border border rounded-lg shadow-md'>
+        <div className='font-montserrat px-4 dark:text-white'>
+            <form onSubmit={submitHandler} action="" className='relative w-full sm:w-[480px] mt-8 mb-7 sm:mb-5 mx-auto bg-[#fff] p-4 box-border border rounded-lg shadow-md dark:bg-gray-800 dark:text-white dark:border-gray-600 transition-colors duration-200'>
                 {
-                    isExpanded && <input className='w-full border-none p-1 outline-none text-lg resize-none' 
+                    isExpanded && <input className='w-full border-none p-1 outline-none text-lg resize-none dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400 transition-colors duration-200' 
                     onChange={handleChange} name='title' value={input.title} placeholder='Title' type="text" />
                 }
-                <textarea className='w-full border-none p-1 outline-none text-lg resize-none' 
+                <textarea className='w-full border-none p-1 outline-none text-lg resize-none dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400 transition-colors duration-200' 
                 onClick={expand} onChange={handleChange} name="content" value={input.content} 
                 placeholder='Take a note...'rows={isExpanded ? '3' : '1'} />
                 {

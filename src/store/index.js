@@ -5,17 +5,19 @@ import storage from "redux-persist/lib/storage";
 import authReducer from "./Reducers/authReducer";
 import noteReducer from "./Reducers/noteReducer";
 import adminReducer from "./Reducers/adminReducer";
+import themeReducer from "./Reducers/themeReducer";
 
 const rootReducer = combineReducers({
     auth: authReducer,
     note: noteReducer,
-    admin: adminReducer
+    admin: adminReducer,
+    theme: themeReducer
 });
 
 const persistConfig = {
     key: "noteshelf",
     storage: storage,
-    whitelist: ["auth"]
+    whitelist: ["auth", "theme"]
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

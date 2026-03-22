@@ -53,7 +53,7 @@ const MainPage = () => {
     }, [successMessage, errorMessage, dispatch])
 
     return (
-        <div>
+        <div className='min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white transition-colors duration-200'>
             <CreateArea 
                 input={input}
                 handleChange={handleChange}
@@ -67,7 +67,7 @@ const MainPage = () => {
                 onClear={handleClear}
             />
             {searchQuery && (
-                <p className="text-sm text-gray-500 px-4 mb-2">
+                <p className="text-sm text-gray-500 dark:text-gray-300 px-4 mb-2">
                     {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchQuery}"
                 </p>
             )}
