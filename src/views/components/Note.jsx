@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { update_note } from '../../store/Reducers/noteReducer';
+import DOMPurify from 'dompurify';
+import TiptapEditor from './TiptapEditor';
 
 const Note = (props) => {
     const dispatch = useDispatch();
@@ -39,7 +41,16 @@ const Note = (props) => {
             {!isEditing ? (
                 <>
                     <h1 className='text-sm sm:text-base mb-1'>{props.title}</h1>
-                    <p className='text-sm sm:text-base mb-2 whitespace-pre-wrap break-words'>{props.content}</p>
+                    {props.contentType === 'html' ? (
+                        <div
+                            className='text-sm mb-2 prose dark:prose-invert max-w-none'
+                            dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(props.content)
+                            }}
+                        />
+                    ) : (
+                        <p className='text-sm mb-2 whitespace-pre-wrap break-words'>{props.content}</p>
+                    )}
                     <button
                         onClick={() => setIsEditing(true)}
                         className='relative px-2 py-1 text-xs sm:text-sm mr-2 text-[#f5ba13] border-none cursor-pointer'
@@ -53,11 +64,9 @@ const Note = (props) => {
                         onChange={(e) => setEditTitle(e.target.value)}
                         className='text-sm sm:text-base mb-2 w-full border rounded px-2 py-1 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400 transition-colors duration-200'
                     />
-                    <textarea
-                        value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
-                        className='text-sm sm:text-base mb-2 w-full border rounded px-2 py-1 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400 transition-colors duration-200'
-                        rows={4}
+                    <TiptapEditor
+                        content={editContent}
+                        onChange={(html) => setEditContent(html)}
                     />
                     <button
                         onClick={handleSave}
