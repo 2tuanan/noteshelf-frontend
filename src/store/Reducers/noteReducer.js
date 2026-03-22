@@ -25,6 +25,18 @@ export const get_notes = createAsyncThunk(
     }
 )
 
+export const search_notes = createAsyncThunk(
+    'note/search_notes',
+    async(q, {rejectWithValue, }) => {
+        try {
+            const {data} = await api.get(`/search-notes?q=${encodeURIComponent(q)}`, {withCredentials: true})
+            return { ...data, q };
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+)
+
 export const delete_note = createAsyncThunk(
     'note/delete_note',
     async(id, {rejectWithValue, }) => {
@@ -56,12 +68,18 @@ export const noteReducer = createSlice({
         errorMessage: '',
         loader: false,
         notes: [],
-        totalNotes: 0
+        totalNotes: 0,
+        searchResults: [],
+        searchQuery: ''
     },
     reducers: {
         messageClear: (state, _) => {
             state.errorMessage = '';
             state.successMessage = '';
+        },
+        clearSearch: (state) => {
+            state.searchResults = [];
+            state.searchQuery = '';
         },
     },
     extraReducers: (builder) => {
@@ -82,6 +100,13 @@ export const noteReducer = createSlice({
             state.notes = payload.notes;
             state.totalNotes = payload.totalNotes;
         })
+        .addCase(search_notes.fulfilled, (state, { payload }) => {
+            state.searchResults = payload.notes;
+            state.searchQuery = payload.q;
+        })
+        .addCase(search_notes.rejected, (state, { payload }) => {
+            state.errorMessage = payload?.error || 'Search failed';
+        })
         .addCase(delete_note.rejected, (state, { payload }) => {
             state.errorMessage = payload.error;
         })
@@ -100,5 +125,5 @@ export const noteReducer = createSlice({
     }
 })
 
-export const {messageClear} = noteReducer.actions;
+export const {messageClear, clearSearch} = noteReducer.actions;
 export default noteReducer.reducer;
