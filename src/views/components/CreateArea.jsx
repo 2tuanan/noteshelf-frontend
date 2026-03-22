@@ -1,7 +1,8 @@
 import React from 'react';
 import { BeatLoader } from 'react-spinners';
+import TiptapEditor from './TiptapEditor';
 
-const CreateArea = ({ input, handleChange, submitHandler, isExpanded, setIsExpanded, loader }) => {
+const CreateArea = ({ input, handleChange, setInput, submitHandler, isExpanded, setIsExpanded, loader }) => {
     const expand = () => setIsExpanded(true);
 
     const overrideStyle = {
@@ -18,9 +19,12 @@ const CreateArea = ({ input, handleChange, submitHandler, isExpanded, setIsExpan
                     isExpanded && <input className='w-full border-none p-1 outline-none text-lg resize-none dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400 transition-colors duration-200' 
                     onChange={handleChange} name='title' value={input.title} placeholder='Title' type="text" />
                 }
-                <textarea className='w-full border-none p-1 outline-none text-lg resize-none dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400 transition-colors duration-200' 
-                onClick={expand} onChange={handleChange} name="content" value={input.content} 
-                placeholder='Take a note...'rows={isExpanded ? '3' : '1'} />
+                <div onClick={expand}>
+                    <TiptapEditor
+                        content={input.content}
+                        onChange={(html) => setInput({ ...input, content: html })}
+                    />
+                </div>
                 {
                     isExpanded && <button type='submit' className='absolute w-12 h-9 right-[18px] -bottom-[18px] bg-[#f5ba13] 
                     text-[#fff] text-sm border-none rounded-full shadow-md cursor-pointer outline-none 

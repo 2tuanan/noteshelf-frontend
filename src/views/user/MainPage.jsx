@@ -57,6 +57,7 @@ const MainPage = () => {
             <CreateArea 
                 input={input}
                 handleChange={handleChange}
+                setInput={setInput}
                 submitHandler={submitHandler}
                 isExpanded={isExpanded}
                 setIsExpanded={setIsExpanded}
@@ -79,6 +80,7 @@ const MainPage = () => {
                     key={note._id}
                     title={note.title}
                     content={note.content}
+                    contentType={note.contentType}
                     onDelete={deleteNote}
                 />
                 );
