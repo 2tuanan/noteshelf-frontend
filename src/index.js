@@ -4,7 +4,8 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import store from './store/index';
+import { PersistGate } from 'redux-persist/integration/react';
+import store, { persistor } from './store/index';
 import { Toaster } from 'react-hot-toast';
 const App = lazy(() => import('./App'));
 
@@ -12,21 +13,23 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
     <Provider store={store}>
-      <Suspense>
-        <App /> 
-        <Toaster 
-          toastOptions={{
-            duration: 1000,
-            position: 'top-center',
-            style: {
-              padding: '16px',
-              color: '#fff',
-              background: '#333',
-            },
+      <PersistGate loading={null} persistor={persistor}>
+        <Suspense>
+          <App /> 
+          <Toaster 
+            toastOptions={{
+              duration: 1000,
+              position: 'top-center',
+              style: {
+                padding: '16px',
+                color: '#fff',
+                background: '#333',
+              },
 
-          }}
-        />
-      </Suspense>
+            }}
+          />
+        </Suspense>
+      </PersistGate>
     </Provider>
   </BrowserRouter>
 );
