@@ -37,6 +37,18 @@ export const delete_note = createAsyncThunk(
     }
 )
 
+export const update_note = createAsyncThunk(
+    'note/update_note',
+    async({ id, data }, {rejectWithValue, }) => {
+        try {
+            const {data: res} = await api.put(`/update-note/${id}`, data, {withCredentials: true})
+            return { ...res, id };
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+)
+
 export const noteReducer = createSlice({
     name: 'note',
     initialState: {
@@ -76,6 +88,14 @@ export const noteReducer = createSlice({
         .addCase(delete_note.fulfilled, (state, { payload }) => {
             state.notes = state.notes.filter(note => note._id !== payload.id);
             state.successMessage = payload.message;
+        })
+        .addCase(update_note.fulfilled, (state, { payload }) => {
+            state.successMessage = payload.message;
+            const index = state.notes.findIndex(note => note._id === payload.id);
+            if (index !== -1) state.notes[index] = payload.note;
+        })
+        .addCase(update_note.rejected, (state, { payload }) => {
+            state.errorMessage = payload?.error || 'Update failed';
         })
     }
 })
