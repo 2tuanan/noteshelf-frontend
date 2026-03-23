@@ -4,6 +4,7 @@ import { update_note } from '../../store/Reducers/noteReducer';
 import DOMPurify from 'dompurify';
 import TiptapEditor from './TiptapEditor';
 import AISummary from '../ai/AISummary';
+import AIChat from '../ai/AIChat';
 
 const tagColors = [
     'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
@@ -19,6 +20,7 @@ const Note = (props) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editTitle, setEditTitle] = useState(props.title);
     const [editContent, setEditContent] = useState(props.content);
+    const [showChat, setShowChat] = useState(false);
 
     const handlePopoverToggle = (id) => {
         const popover = document.getElementById(id);
@@ -75,6 +77,10 @@ const Note = (props) => {
                     )}
                     <AISummary noteId={props.id} />
                     <button
+                        onClick={() => setShowChat(!showChat)}
+                        className='text-xs px-2 py-1 bg-blue-100 rounded hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300'
+                    >💬 Chat</button>
+                    <button
                         onClick={() => setIsEditing(true)}
                         className='relative px-2 py-1 text-xs sm:text-sm mr-2 text-[#f5ba13] border-none cursor-pointer'
                     >Edit</button>
@@ -105,6 +111,12 @@ const Note = (props) => {
                 onClick={() => {props.onDelete(props.id)}}
                 className='relative w-7 h-7 sm:w-9 sm:h-9 float-right mr-2 text-[#f5ba13] border-none 
                 cursor-pointer outline-none hover:transform hover:scale-105 transition-all duration-500'>X</button>
+            {showChat && (
+                <AIChat
+                    noteId={props.id}
+                    onClose={() => setShowChat(false)}
+                />
+            )}
         </div>
     );
 };
