@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { update_note } from '../../store/Reducers/noteReducer';
 import DOMPurify from 'dompurify';
 import TiptapEditor from './TiptapEditor';
+import AISummary from '../ai/AISummary';
 
 const Note = (props) => {
     const dispatch = useDispatch();
@@ -41,7 +42,8 @@ const Note = (props) => {
             {!isEditing ? (
                 <>
                     <h1 className='text-sm sm:text-base mb-1'>{props.title}</h1>
-                    {props.contentType === 'html' ? (
+                    {props.contentType === 'html' ||
+                    (props.content && props.content.trim().startsWith('<')) ? (
                         <div
                             className='text-sm mb-2 prose dark:prose-invert max-w-none'
                             dangerouslySetInnerHTML={{
@@ -51,6 +53,9 @@ const Note = (props) => {
                     ) : (
                         <p className='text-sm mb-2 whitespace-pre-wrap break-words'>{props.content}</p>
                     )}
+                    <AISummary
+                        noteId={props.id}
+                    />
                     <button
                         onClick={() => setIsEditing(true)}
                         className='relative px-2 py-1 text-xs sm:text-sm mr-2 text-[#f5ba13] border-none cursor-pointer'
