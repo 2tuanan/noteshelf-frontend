@@ -83,6 +83,8 @@ const MainPage = () => {
                     contentType={note.contentType}
                     tags={note.tags || []}
                     summary={note.summary || ''}
+                    isPublic={note.isPublic || false}
+                    shareToken={note.shareToken || null}
                     onDelete={deleteNote}
                 />
                 );
