@@ -5,6 +5,7 @@ import DOMPurify from 'dompurify';
 import TiptapEditor from './TiptapEditor';
 import AISummary from '../ai/AISummary';
 import AIChat from '../ai/AIChat';
+import ShareButton from './ShareButton';
 
 const tagColors = [
     'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
@@ -75,6 +76,11 @@ const Note = (props) => {
                             ))}
                         </div>
                     )}
+                    <ShareButton
+                        noteId={props.id}
+                        isPublic={props.isPublic}
+                        shareToken={props.shareToken}
+                    />
                     <AISummary noteId={props.id} />
                     <button
                         onClick={() => setShowChat(!showChat)}

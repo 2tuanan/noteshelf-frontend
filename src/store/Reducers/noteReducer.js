@@ -89,6 +89,15 @@ export const noteReducer = createSlice({
                 state.notes[index].summary = payload.summary
             }
         },
+        updateNoteShareState: (state, { payload }) => {
+            const index = state.notes.findIndex(
+                n => n._id === payload.noteId
+            )
+            if (index !== -1) {
+                state.notes[index].isPublic = payload.isPublic
+                state.notes[index].shareToken = payload.shareToken
+            }
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -133,5 +142,5 @@ export const noteReducer = createSlice({
     }
 })
 
-export const {messageClear, clearSearch, updateNoteSummary} = noteReducer.actions;
+export const {messageClear, clearSearch, updateNoteSummary, updateNoteShareState} = noteReducer.actions;
 export default noteReducer.reducer;
