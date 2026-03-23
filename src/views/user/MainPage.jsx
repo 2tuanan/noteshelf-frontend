@@ -81,6 +81,8 @@ const MainPage = () => {
                     title={note.title}
                     content={note.content}
                     contentType={note.contentType}
+                    tags={note.tags || []}
+                    summary={note.summary || ''}
                     onDelete={deleteNote}
                 />
                 );

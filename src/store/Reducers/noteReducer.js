@@ -81,6 +81,14 @@ export const noteReducer = createSlice({
             state.searchResults = [];
             state.searchQuery = '';
         },
+        updateNoteSummary: (state, { payload }) => {
+            const index = state.notes.findIndex(
+                n => n._id === payload.id
+            )
+            if (index !== -1) {
+                state.notes[index].summary = payload.summary
+            }
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -90,7 +98,7 @@ export const noteReducer = createSlice({
         .addCase(add_note.fulfilled, (state, { payload }) => {
             state.loader = false;
             state.successMessage = payload.message;
-            if (payload.note) state.notes.push(payload.note);
+            if (payload.note) state.notes = [payload.note, ...state.notes];
         })
         .addCase(add_note.rejected, (state, { payload }) => {
             state.loader = false;
@@ -125,5 +133,5 @@ export const noteReducer = createSlice({
     }
 })
 
-export const {messageClear, clearSearch} = noteReducer.actions;
+export const {messageClear, clearSearch, updateNoteSummary} = noteReducer.actions;
 export default noteReducer.reducer;

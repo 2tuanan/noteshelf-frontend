@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateNoteSummary } from '../../store/Reducers/noteReducer';
 
 const AISummary = ({ noteId }) => {
+    const dispatch = useDispatch();
     const [streamingSummary, setStreamingSummary] = useState('');
     const [streaming, setStreaming] = useState(false);
     const note = useSelector((state) =>
@@ -11,37 +13,48 @@ const AISummary = ({ noteId }) => {
     const displaySummary = streaming ? streamingSummary : savedSummary;
 
     const handleSummarize = async () => {
-        setStreamingSummary('');
-        setStreaming(true);
+        setStreamingSummary('')
+        setStreaming(true)
+        let fullSummary = ''
         try {
             const res = await fetch(
-                `${process.env.REACT_APP_API_URL || 'http://localhost:4088/api'}/ai/summarize/${noteId}`,
+                `${process.env.REACT_APP_API_URL ||
+                    'http://localhost:4088/api'}/ai/summarize/${noteId}`,
                 { method: 'POST', credentials: 'include' }
-            );
-            const reader = res.body.getReader();
-            const decoder = new TextDecoder();
+            )
+            const reader = res.body.getReader()
+            const decoder = new TextDecoder()
 
             while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                const text = decoder.decode(value);
-                const lines = text.split('\n').filter((line) => line.startsWith('data: '));
+                const { done, value } = await reader.read()
+                if (done) break
+                const text = decoder.decode(value)
+                const lines = text.split('\n')
+                    .filter(l => l.startsWith('data: '))
                 for (const line of lines) {
-                    const payload = JSON.parse(line.slice(6));
+                    const payload = JSON.parse(line.slice(6))
                     if (payload.token) {
-                        setStreamingSummary((prev) => prev + payload.token);
+                        fullSummary += payload.token
+                        setStreamingSummary(fullSummary)
                     }
-                    if (payload.done || payload.error) {
-                        setStreaming(false);
+                    if (payload.done) {
+                        dispatch(updateNoteSummary({
+                            id: noteId,
+                            summary: fullSummary
+                        }))
+                        setStreaming(false)
+                    }
+                    if (payload.error) {
+                        setStreaming(false)
                     }
                 }
             }
         } catch (error) {
-            console.error('Summarize failed:', error);
+            console.error('Summarize failed:', error)
         } finally {
-            setStreaming(false);
+            setStreaming(false)
         }
-    };
+    }
 
     return (
         <div>
