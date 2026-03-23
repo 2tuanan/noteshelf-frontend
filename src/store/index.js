@@ -6,12 +6,14 @@ import authReducer from "./Reducers/authReducer";
 import noteReducer from "./Reducers/noteReducer";
 import adminReducer from "./Reducers/adminReducer";
 import themeReducer from "./Reducers/themeReducer";
+import aiReducer from "./Reducers/aiReducer";
 
 const rootReducer = combineReducers({
     auth: authReducer,
     note: noteReducer,
     admin: adminReducer,
-    theme: themeReducer
+    theme: themeReducer,
+    ai: aiReducer
 });
 
 const persistConfig = {
