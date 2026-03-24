@@ -6,6 +6,7 @@ import TiptapEditor from './TiptapEditor';
 import AISummary from '../ai/AISummary';
 import AIChat from '../ai/AIChat';
 import ShareButton from './ShareButton';
+import ExportMenu from './ExportMenu';
 
 const tagColors = [
     'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
@@ -81,6 +82,7 @@ const Note = (props) => {
                         isPublic={props.isPublic}
                         shareToken={props.shareToken}
                     />
+                    <ExportMenu noteId={props.id} />
                     <AISummary noteId={props.id} />
                     <button
                         onClick={() => setShowChat(!showChat)}
