@@ -5,36 +5,44 @@ import TiptapEditor from './TiptapEditor';
 const CreateArea = ({ input, handleChange, setInput, submitHandler, isExpanded, setIsExpanded, loader }) => {
     const expand = () => setIsExpanded(true);
 
-    const overrideStyle = {
-        display: 'flex',
-        margin: '0 auto',
-        height: 'auto',
-        justifyContent: 'center',
-        alignItems: 'center',
-    }
     return (
-        <div className='font-montserrat px-4 dark:text-white'>
-            <form onSubmit={submitHandler} action="" className='relative w-full sm:w-[480px] mt-8 mb-7 sm:mb-5 mx-auto bg-[#fff] p-4 box-border border rounded-lg shadow-md dark:bg-gray-800 dark:text-white dark:border-gray-600 transition-colors duration-200'>
-                {
-                    isExpanded && <input className='w-full border-none p-1 outline-none text-lg resize-none dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400 transition-colors duration-200' 
-                    onChange={handleChange} name='title' value={input.title} placeholder='Title' type="text" />
-                }
+        <div className="font-montserrat px-4">
+            <form
+                onSubmit={submitHandler}
+                className="w-full sm:w-[520px] mt-8 mb-6 mx-auto bg-surface-raised dark:bg-dark-raised rounded-card shadow-card border border-border dark:border-dark-border p-4 box-border transition-colors duration-200"
+            >
+                {isExpanded && (
+                    <input
+                        className="w-full bg-transparent border-b border-transparent focus:border-border dark:focus:border-dark-border outline-none px-0 pb-2 mb-3 text-subheading font-semibold text-ink dark:text-ink-inverse placeholder:text-ink-secondary/50 dark:placeholder:text-ink-inverse/40 transition-colors duration-150"
+                        onChange={handleChange}
+                        name="title"
+                        value={input.title}
+                        placeholder="Title"
+                        type="text"
+                    />
+                )}
+
                 <div onClick={expand}>
                     <TiptapEditor
                         content={input.content}
                         onChange={(html) => setInput({ ...input, content: html })}
                     />
                 </div>
-                {
-                    isExpanded && <button type='submit' className='absolute w-12 h-9 right-[18px] -bottom-[18px] bg-[#f5ba13] 
-                    text-[#fff] text-sm border-none rounded-full shadow-md cursor-pointer outline-none 
-                    hover:transform hover:scale-105 transition-all duration-500' 
-                    >
-                        {
-                            loader ? <BeatLoader cssOverride={overrideStyle} size={7} color='white'/> : 'Add'
-                        }
-                    </button>
-                }
+
+                {isExpanded && (
+                    <div className="mt-3 flex justify-end">
+                        <button
+                            type="submit"
+                            className="inline-flex items-center gap-2 px-btn-x py-btn-y bg-accent hover:bg-accent-hover active:scale-95 text-accent-fg text-sm font-semibold rounded-button shadow-sm transition-all duration-150 cursor-pointer"
+                        >
+                            {loader ? (
+                                <BeatLoader size={5} color="#1A1714" />
+                            ) : (
+                                'Add note'
+                            )}
+                        </button>
+                    </div>
+                )}
             </form>
         </div>
     );
