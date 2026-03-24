@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CreateArea from '../components/CreateArea';
 import Note from '../components/Note';
-import SearchBar from '../components/SearchBar';
 import { useDispatch, useSelector } from 'react-redux';
-import { add_note, clearSearch, delete_note, get_notes, messageClear, search_notes } from '../../store/Reducers/noteReducer';
+import { add_note, delete_note, get_notes, messageClear } from '../../store/Reducers/noteReducer';
 import toast from 'react-hot-toast';
 
 const MainPage = () => {
@@ -22,14 +21,6 @@ const MainPage = () => {
         e.preventDefault();
         dispatch(add_note(input))
     }
-
-    const handleSearch = useCallback((q) => {
-        dispatch(search_notes(q));
-    }, [dispatch]);
-
-    const handleClear = useCallback(() => {
-        dispatch(clearSearch());
-    }, [dispatch]);
 
     const deleteNote = (id) => {
         if (window.confirm('Are you sure you want to delete this note?'))
@@ -53,8 +44,8 @@ const MainPage = () => {
     }, [successMessage, errorMessage, dispatch])
 
     return (
-        <div className='min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white transition-colors duration-200'>
-            <CreateArea 
+        <div className='min-h-screen bg-surface dark:bg-dark transition-colors duration-200'>
+            <CreateArea
                 input={input}
                 handleChange={handleChange}
                 setInput={setInput}
@@ -63,12 +54,8 @@ const MainPage = () => {
                 setIsExpanded={setIsExpanded}
                 loader={loader}
             />
-            <SearchBar
-                onSearch={handleSearch}
-                onClear={handleClear}
-            />
             {searchQuery && (
-                <p className="text-sm text-gray-500 dark:text-gray-300 px-4 mb-2">
+                <p className="text-small text-ink-secondary dark:text-ink-inverse-secondary px-4 mb-2">
                     {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchQuery}"
                 </p>
             )}

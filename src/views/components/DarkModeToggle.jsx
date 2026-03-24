@@ -11,7 +11,7 @@ const DarkModeToggle = () => {
             type="button"
             aria-label="Toggle dark mode"
             onClick={() => dispatch(toggleDarkMode())}
-            className="p-2 rounded-full hover:bg-yellow-500/20 transition-colors text-white"
+            className="p-2 rounded-full hover:bg-black/15 dark:hover:bg-white/15 transition-colors text-accent-fg dark:text-ink-inverse"
         >
             {darkMode ? (
                 <svg
