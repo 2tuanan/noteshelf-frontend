@@ -1,35 +1,121 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../store/Reducers/authReducer';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import DarkModeToggle from '../views/components/DarkModeToggle';
+import SearchBar from '../views/components/SearchBar';
 
 const Header = () => {
-    const port = process.env.REACT_APP_PORT
+    const url = process.env.REACT_APP_FRONTEND_DOMAIN;
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const dispatch = useDispatch()
-    const { userInfo, role } = useSelector(state => state.auth)
+    const dropdownRef = useRef(null);
+    const dispatch = useDispatch();
+    const { userInfo, role } = useSelector((state) => state.auth);
     const navigate = useNavigate();
+    const { pathname } = useLocation();
+    const showSearch = pathname === '/user';
+
+    // Close dropdown when clicking outside the user section
+    useEffect(() => {
+        const handler = (e) => {
+            if (!dropdownRef.current?.contains(e.target)) setIsDropdownOpen(false);
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
     return (
-        <header className='bg-[#f5ba13] mx-0 py-4 px-2 sm:px-5 shadow-md text-[#fff] dark:bg-gray-800 dark:text-white transition-colors duration-200'>
-            <div className='ml-0 rounded-md h-[65px] flex justify-between items-center px-5 transition-all' >
-                <h1 className='flex text-[#fff] font-mclaren font-normal text-xl sm:text-2xl'>Noteshelf</h1>
-                <div className='flex justify-center items-center gap-3'>
+        <header className="sticky top-0 z-30
+            bg-accent dark:bg-dark-raised
+            border-b border-black/10 dark:border-dark-border
+            shadow-card dark:shadow-card-dark
+            transition-colors duration-200">
+
+            <div className="min-h-header flex flex-wrap items-center gap-3 sm:gap-5 px-4 sm:px-6 py-2 sm:py-0">
+
+                {/* ── Brand — left ── */}
+                <div className="flex items-center gap-2 shrink-0 select-none">
+                    <img
+                        src={`${process.env.PUBLIC_URL}/logo512.png`}
+                        alt="Noteshelf logo"
+                        className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 object-contain"
+                    />
+                    <span className="font-mclaren text-xl sm:text-2xl leading-none
+                        text-accent-fg dark:text-accent">
+                        Noteshelf
+                    </span>
+                </div>
+
+                {/* ── Search — stretches to fill center space ── */}
+                <div className="order-3 w-full sm:order-none sm:flex-1 sm:min-w-0 sm:max-w-md sm:mx-auto">
+                    {showSearch && <SearchBar />}
+                </div>
+
+                {/* ── Right: DarkModeToggle + user menu ── */}
+                <div className="ml-auto flex items-center gap-1 shrink-0 relative" ref={dropdownRef}>
+
                     <DarkModeToggle />
-                    <div className='flex justify-center items-center flex-col text-end'>
-                        <h2 className='text-base font-bold'>{userInfo.name}</h2>
-                        <span className='text-[14px] w-full font-normal'>{userInfo?.role?.charAt(0).toUpperCase() + userInfo?.role?.slice(1)}</span>
-                    </div>
-                    <img onClick={()=>setIsDropdownOpen(!isDropdownOpen)} className='w-[60px] h-[60px] bg-slate-700 rounded-full overflow-hidden cursor-pointer' src={`http://localhost:${port}/images/admin.png`} alt="" />
+
+                    {/* User button */}
+                    <button
+                        type="button"
+                        onClick={() => setIsDropdownOpen((v) => !v)}
+                        className="flex items-center gap-2 rounded-button px-2 py-1.5
+                            text-accent-fg dark:text-ink-inverse
+                            hover:bg-black/10 dark:hover:bg-white/10
+                            transition-colors duration-150"
+                    >
+                        {/* Avatar */}
+                        <div className="w-10 h-10 rounded-full bg-black/20 dark:bg-white/10
+                            flex items-center justify-center overflow-hidden shrink-0">
+                            <img
+                                src={`${url}/images/admin.png`}
+                                alt={userInfo.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            />
+                        </div>
+
+                        {/* Name + role — hidden on mobile */}
+                        <div className="hidden sm:flex flex-col items-start leading-none gap-0.5">
+                            <span className="text-small font-semibold">{userInfo.name}</span>
+                            <span className="text-caption opacity-70">
+                                {userInfo?.role?.charAt(0).toUpperCase() + userInfo?.role?.slice(1)}
+                            </span>
+                        </div>
+
+                        {/* Chevron */}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor"
+                            className={`w-3.5 h-3.5 opacity-60 hidden sm:block transition-transform duration-150
+                                ${isDropdownOpen ? 'rotate-180' : ''}`}>
+                            <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+
+                    {/* Dropdown menu — positioned relative to this container */}
                     {isDropdownOpen && (
-                        <div className='z-10 group absolute top-[97px] right-0 bg-white shadow-md rounded-lg w-48 border border-[#f5ba13] hover:border-red-400/80 hover:bg-red-400 transition-all duration-300 dark:bg-gray-800 dark:border-gray-600 transition-colors duration-200'>
-                            <button onClick={()=> dispatch(logout({navigate, role}))}
-                                className='flex items-center w-full px-4 py-3 text-sm text-gray-700
-                                        group-hover:text-white rounded-md transition-all duration-300 dark:text-white dark:hover:bg-gray-700'>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 mr-2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7-7 7M5 12h14" />
+                        <div className="absolute top-full right-0 mt-2 z-50
+                            w-48 py-1
+                            bg-surface-raised dark:bg-dark-raised
+                            border border-border dark:border-dark-border
+                            rounded-card shadow-elevated dark:shadow-elevated-dark">
+                            <button
+                                type="button"
+                                onClick={() => dispatch(logout({ navigate, role }))}
+                                className="flex items-center gap-2 w-full px-4 py-2.5
+                                    text-small text-ink dark:text-ink-inverse
+                                    hover:bg-red-50 dark:hover:bg-red-900/20
+                                    hover:text-danger dark:hover:text-red-400
+                                    transition-colors duration-150"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"
+                                    className="w-4 h-4 shrink-0">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                        d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
                                 </svg>
-                                <span>Logout</span>
+                                Sign out
                             </button>
                         </div>
                     )}

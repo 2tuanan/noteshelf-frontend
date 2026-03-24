@@ -8,9 +8,9 @@ const MainLayout = () => {
     const darkMode = useSelector(state => state.theme.darkMode);
 
     return (
-        <div className={`flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200 ${darkMode ? 'dark' : ''}`}>
+        <div className={`flex flex-col min-h-screen bg-surface dark:bg-dark transition-colors duration-200 ${darkMode ? 'dark' : ''}`}>
             <Header />
-            <main className='flex-grow bg-gray-100 dark:bg-gray-900 transition-colors duration-200'>
+            <main className='flex-grow bg-surface dark:bg-dark transition-colors duration-200'>
                 <Outlet />
             </main>
             <Footer />
