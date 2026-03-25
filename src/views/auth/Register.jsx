@@ -63,7 +63,6 @@ const Register = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { loader, errorMessage, successMessage } = useSelector((s) => s.auth);
-    const { darkMode } = useSelector((s) => s.theme);
     const [state, setState] = useState({ name: '', email: '', password: '' });
 
     const inputHandler = (e) => setState({ ...state, [e.target.name]: e.target.value });
@@ -79,8 +78,8 @@ const Register = () => {
     }, [errorMessage, successMessage, dispatch, navigate]);
 
     return (
-        <div className={`min-h-screen font-montserrat bg-surface dark:bg-dark transition-colors duration-200
-            flex flex-col justify-center items-center px-4 py-12 ${darkMode ? 'dark' : ''}`}>
+        <div className="min-h-screen font-montserrat bg-surface dark:bg-dark transition-colors duration-200
+            flex flex-col justify-center items-center px-4 py-12">
 
             {/* Brand wordmark */}
             <div className="flex items-center gap-2 mb-8 text-accent">
