@@ -260,6 +260,7 @@ const Note = (props) => {
             {showChat && (
                 <AIChat
                     noteId={props.id}
+                    noteTitle={props.title}
                     onClose={() => setShowChat(false)}
                 />
             )}
