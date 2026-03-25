@@ -102,7 +102,7 @@ const Note = (props) => {
             'border border-border dark:border-dark-border ' +
             'rounded-card shadow-card dark:shadow-card-dark ' +
             'px-card-x py-card-y ' +
-            'w-[220px] sm:w-[260px] m-3 ' +
+            'w-full ' +
             'transition-shadow duration-200 hover:shadow-elevated dark:hover:shadow-elevated-dark'
         }>
             {/* ── View mode ─────────────────────────────────────────── */}

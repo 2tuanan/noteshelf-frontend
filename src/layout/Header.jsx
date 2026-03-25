@@ -31,7 +31,7 @@ const Header = () => {
             shadow-card dark:shadow-card-dark
             transition-colors duration-200">
 
-            <div className="min-h-header flex flex-wrap items-center gap-3 sm:gap-5 px-4 sm:px-6 py-2 sm:py-0">
+            <div className="h-header flex items-center gap-3 sm:gap-5 px-4 sm:px-6">
 
                 {/* ── Brand — left ── */}
                 <div className="flex items-center gap-2 shrink-0 select-none">
@@ -47,12 +47,12 @@ const Header = () => {
                 </div>
 
                 {/* ── Search — stretches to fill center space ── */}
-                <div className="order-3 w-full sm:order-none sm:flex-1 sm:min-w-0 sm:max-w-md sm:mx-auto">
+                <div className="flex-1 max-w-md mx-auto">
                     {showSearch && <SearchBar />}
                 </div>
 
                 {/* ── Right: DarkModeToggle + user menu ── */}
-                <div className="ml-auto flex items-center gap-1 shrink-0 relative" ref={dropdownRef}>
+                <div className="flex items-center gap-1 shrink-0 relative" ref={dropdownRef}>
 
                     <DarkModeToggle />
 
