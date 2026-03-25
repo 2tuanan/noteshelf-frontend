@@ -84,6 +84,8 @@ const AISummary = ({ noteId, open, onToggle }) => {
             <button
                 type="button"
                 onClick={onToggle}
+                aria-expanded={open}
+                aria-controls="ai-summary-body"
                 className="flex items-center gap-1.5 w-full text-left py-0.5
                     text-caption font-medium
                     text-accent dark:text-yellow-400
@@ -109,10 +111,16 @@ const AISummary = ({ noteId, open, onToggle }) => {
                 </svg>
             </button>
 
-            {/* Collapsible body */}
+            {/* Collapsible body — aria-live announces streamed tokens to screen readers */}
             {open && (
-                <div className="mt-2 border-l-2 border-accent pl-3 py-2.5
-                    bg-accent-subtle dark:bg-yellow-900/10 rounded-r-sm">
+                <div
+                    id="ai-summary-body"
+                    role="region"
+                    aria-label="AI Summary"
+                    aria-live="polite"
+                    aria-atomic="false"
+                    className="mt-2 border-l-2 border-accent pl-3 py-2.5
+                        bg-accent-subtle dark:bg-yellow-900/10 rounded-r-sm">
 
                     {streaming && !streamingSummary ? (
                         /* Waiting for first token */

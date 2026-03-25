@@ -31,6 +31,7 @@ const AIChat = ({ noteId, noteTitle, onClose }) => {
     const { chatMessages, chatStreaming, streamingContent } = useSelector((s) => s.ai);
     const [input, setInput] = useState('');
     const [visible, setVisible] = useState(false);
+    const panelRef = useRef(null);
     const messagesEndRef = useRef(null);
     const textareaRef = useRef(null);
 
@@ -39,6 +40,14 @@ const AIChat = ({ noteId, noteTitle, onClose }) => {
         const id = requestAnimationFrame(() => setVisible(true));
         return () => cancelAnimationFrame(id);
     }, []);
+
+    useEffect(() => {
+        if (!visible) return undefined;
+        const focusTimer = requestAnimationFrame(() => {
+            textareaRef.current?.focus();
+        });
+        return () => cancelAnimationFrame(focusTimer);
+    }, [visible]);
 
     useEffect(() => {
         dispatch(setChatNoteId(noteId));
@@ -91,6 +100,43 @@ const AIChat = ({ noteId, noteTitle, onClose }) => {
             e.preventDefault();
             void handleSend();
         }
+        if (e.key === 'Escape') {
+            onClose();
+        }
+    };
+
+    // Also allow Escape from anywhere in the panel
+    useEffect(() => {
+        const handler = (e) => { if (e.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [onClose]);
+
+    const handlePanelKeyDown = (e) => {
+        if (e.key !== 'Tab') return;
+
+        const focusableSelector = [
+            'button:not([disabled])',
+            'textarea:not([disabled])',
+            'a[href]',
+            'input:not([disabled])',
+            'select:not([disabled])',
+            '[tabindex]:not([tabindex="-1"])',
+        ].join(',');
+
+        const focusable = panelRef.current?.querySelectorAll(focusableSelector);
+        if (!focusable || focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
     };
 
     const isEmpty = chatMessages.length === 0 && !chatStreaming;
@@ -106,9 +152,11 @@ const AIChat = ({ noteId, noteTitle, onClose }) => {
 
             {/* Slide-in panel */}
             <aside
+                ref={panelRef}
                 role="dialog"
                 aria-modal="true"
                 aria-label="AI Chat"
+                onKeyDown={handlePanelKeyDown}
                 className={`fixed right-0 top-0 h-full z-50 flex flex-col w-[360px]
                     bg-surface-raised dark:bg-dark-raised
                     shadow-panel rounded-l-panel
@@ -152,8 +200,13 @@ const AIChat = ({ noteId, noteTitle, onClose }) => {
                     </button>
                 </div>
 
-                {/* Message list */}
-                <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+                {/* Message list — aria-live announces incoming streamed tokens */}
+                <div
+                    className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
+                    aria-live="polite"
+                    aria-label="Chat messages"
+                    aria-atomic="false"
+                >
                     {isEmpty ? (
                         <div className="flex flex-col items-center justify-center h-full gap-3 text-center pb-8">
                             <span className="flex items-center justify-center w-12 h-12
@@ -210,6 +263,7 @@ const AIChat = ({ noteId, noteTitle, onClose }) => {
                         <textarea
                             ref={textareaRef}
                             rows={1}
+                            aria-label="Message input"
                             value={input}
                             onChange={(e) => {
                                 setInput(e.target.value);

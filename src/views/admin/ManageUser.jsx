@@ -76,22 +76,22 @@ const ManageUser = () => {
                             <thead>
                                 <tr className="bg-surface-inset dark:bg-dark-inset
                                     border-b border-border dark:border-dark-border">
-                                    <th className="px-5 py-3 text-caption font-medium
+                                    <th scope="col" className="px-5 py-3 text-caption font-medium
                                         text-ink-secondary dark:text-ink-inverse-secondary
                                         uppercase tracking-wider">
                                         Name
                                     </th>
-                                    <th className="px-5 py-3 text-caption font-medium
+                                    <th scope="col" className="px-5 py-3 text-caption font-medium
                                         text-ink-secondary dark:text-ink-inverse-secondary
                                         uppercase tracking-wider">
                                         Email
                                     </th>
-                                    <th className="px-5 py-3 text-caption font-medium
+                                    <th scope="col" className="px-5 py-3 text-caption font-medium
                                         text-ink-secondary dark:text-ink-inverse-secondary
                                         uppercase tracking-wider text-right">
                                         Notes
                                     </th>
-                                    <th className="px-5 py-3 text-caption font-medium
+                                    <th scope="col" className="px-5 py-3 text-caption font-medium
                                         text-ink-secondary dark:text-ink-inverse-secondary
                                         uppercase tracking-wider text-right">
                                         Actions
@@ -130,6 +130,9 @@ const ManageUser = () => {
                                             <div className="flex items-center justify-end gap-2">
                                                 {/* Ghost reset */}
                                                 <button
+                                                    type="button"
+                                                    aria-label={`Reset notes for ${user.name}`}
+                                                    aria-busy={resetLoader === user._id}
                                                     onClick={() => resetNotes(user._id)}
                                                     className="inline-flex items-center justify-center
                                                         min-w-[90px] h-[30px] px-btn-sm-x
@@ -144,6 +147,9 @@ const ManageUser = () => {
                                                 </button>
                                                 {/* Danger delete */}
                                                 <button
+                                                    type="button"
+                                                    aria-label={`Delete ${user.name}`}
+                                                    aria-busy={deleteLoader === user._id}
                                                     onClick={() => deleteUser(user._id)}
                                                     className="inline-flex items-center justify-center
                                                         min-w-[70px] h-[30px] px-btn-sm-x
@@ -187,6 +193,9 @@ const ManageUser = () => {
                                     </div>
                                     <div className="flex gap-2">
                                         <button
+                                            type="button"
+                                            aria-label={`Reset notes for ${user.name}`}
+                                            aria-busy={resetLoader === user._id}
                                             onClick={() => resetNotes(user._id)}
                                             className="flex-1 flex items-center justify-center h-8
                                                 border border-border dark:border-dark-border
@@ -199,6 +208,9 @@ const ManageUser = () => {
                                                 : 'Reset Notes'}
                                         </button>
                                         <button
+                                            type="button"
+                                            aria-label={`Delete ${user.name}`}
+                                            aria-busy={deleteLoader === user._id}
                                             onClick={() => deleteUser(user._id)}
                                             className="flex-1 flex items-center justify-center h-8
                                                 bg-red-500 hover:bg-red-600 active:scale-95

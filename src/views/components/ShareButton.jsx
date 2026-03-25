@@ -10,6 +10,7 @@ const ShareButton = ({ noteId, isPublic, shareToken }) => {
     const [open, setOpen]     = useState(false);
     const [copied, setCopied] = useState(false);
     const ref = useRef(null);
+    const triggerRef = useRef(null);
 
     // Close popover on outside click
     useEffect(() => {
@@ -19,6 +20,18 @@ const ShareButton = ({ noteId, isPublic, shareToken }) => {
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
     }, []);
+
+    useEffect(() => {
+        if (!open) return undefined;
+        const handler = (e) => {
+            if (e.key === 'Escape') {
+                setOpen(false);
+                triggerRef.current?.focus();
+            }
+        };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [open]);
 
     const buildPublicLink = (token) => `${window.location.origin}/s/${token}`;
 
@@ -67,7 +80,10 @@ const ShareButton = ({ noteId, isPublic, shareToken }) => {
             {/* Icon trigger — matches IconBtn style in Note.jsx */}
             <button
                 type="button"
-                title={isPublic ? 'Sharing options' : 'Share note'}
+                ref={triggerRef}
+                aria-label={isPublic ? 'Sharing options' : 'Share note'}
+                aria-expanded={open}
+                aria-haspopup="dialog"
                 onClick={() => setOpen((v) => !v)}
                 className={`flex items-center justify-center w-7 h-7 rounded-button
                     transition-colors duration-150
@@ -96,6 +112,7 @@ const ShareButton = ({ noteId, isPublic, shareToken }) => {
                             {/* Truncated link preview */}
                             <input
                                 readOnly
+                                aria-label="Public note link"
                                 value={buildPublicLink(shareToken)}
                                 onClick={(e) => e.target.select()}
                                 className="w-full mb-2 px-2 py-1.5 text-caption

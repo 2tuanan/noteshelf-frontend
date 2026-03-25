@@ -10,7 +10,7 @@ const Divider = () => (
     <span className="w-px h-5 bg-border dark:bg-dark-border self-center mx-0.5 shrink-0" aria-hidden="true" />
 );
 
-const TiptapEditor = ({ content, onChange }) => {
+const TiptapEditor = ({ content, onChange, onEditorReady }) => {
     const editor = useEditor({
         extensions: [StarterKit],
         content,
@@ -23,11 +23,17 @@ const TiptapEditor = ({ content, onChange }) => {
         }
     }, [content, editor]);
 
+    useEffect(() => {
+        onEditorReady?.(editor);
+        return () => onEditorReady?.(null);
+    }, [editor, onEditorReady]);
+
     const tbBtn = (active, onClick, label, icon) => (
         <button
             key={label}
             type="button"
-            title={label}
+            aria-label={label}
+            aria-pressed={active}
             onClick={onClick}
             className={`${TB_BASE} ${active ? TB_ON : TB_OFF}`}
         >
@@ -110,6 +116,7 @@ const TiptapEditor = ({ content, onChange }) => {
             {/* Editor content */}
             <EditorContent
                 editor={editor}
+                aria-label="Note content editor"
                 className="min-h-[80px] px-3 py-2.5 prose prose-sm dark:prose-invert max-w-none text-ink dark:text-ink-inverse bg-transparent focus:outline-none"
             />
         </div>
