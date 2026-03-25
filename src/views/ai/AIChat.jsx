@@ -1,36 +1,69 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     addUserMessage,
     appendStreamToken,
     finalizeAssistantMessage,
-    setChatNoteId
+    setChatNoteId,
 } from '../../store/Reducers/aiReducer';
 
-const AIChat = ({ noteId, onClose }) => {
+// Three staggered bouncing dots
+const TypingDots = () => (
+    <span className="inline-flex items-center gap-[3px] py-0.5">
+        {[0, 1, 2].map((i) => (
+            <span
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-ink-secondary dark:bg-ink-inverse-secondary"
+                style={{ animation: `bounce 1s ease-in-out ${i * 0.15}s infinite` }}
+            />
+        ))}
+    </span>
+);
+
+const SparkIcon = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className} aria-hidden="true">
+        <path d="M15.98 1.804a1 1 0 0 0-1.96 0l-.24 1.192a1 1 0 0 1-.784.785l-1.192.238a1 1 0 0 0 0 1.962l1.192.238a1 1 0 0 1 .785.785l.238 1.192a1 1 0 0 0 1.962 0l.238-1.192a1 1 0 0 1 .785-.785l1.192-.238a1 1 0 0 0 0-1.962l-1.192-.238a1 1 0 0 1-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 0 0-1.898 0l-.683 2.051a1 1 0 0 1-.633.633l-2.051.683a1 1 0 0 0 0 1.898l2.051.683a1 1 0 0 1 .633.633l.683 2.051a1 1 0 0 0 1.898 0l.683-2.051a1 1 0 0 1 .633-.633l2.051-.683a1 1 0 0 0 0-1.898l-2.051-.683a1 1 0 0 1-.633-.633L6.95 5.684z" />
+    </svg>
+);
+
+const AIChat = ({ noteId, noteTitle, onClose }) => {
     const dispatch = useDispatch();
-    const { chatMessages, chatStreaming, streamingContent } = useSelector(s => s.ai);
+    const { chatMessages, chatStreaming, streamingContent } = useSelector((s) => s.ai);
     const [input, setInput] = useState('');
+    const [visible, setVisible] = useState(false);
+    const messagesEndRef = useRef(null);
+    const textareaRef = useRef(null);
+
+    // Slide-in animation on mount
+    useEffect(() => {
+        const id = requestAnimationFrame(() => setVisible(true));
+        return () => cancelAnimationFrame(id);
+    }, []);
 
     useEffect(() => {
         dispatch(setChatNoteId(noteId));
     }, [dispatch, noteId]);
 
+    // Auto-scroll to latest message
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [chatMessages, streamingContent]);
+
     const handleSend = async () => {
         if (!input.trim() || chatStreaming) return;
         const message = input.trim();
         setInput('');
+        if (textareaRef.current) textareaRef.current.style.height = '38px';
         dispatch(addUserMessage(message));
 
         try {
             const res = await fetch(
-                `${process.env.REACT_APP_API_URL ||
-                    'http://localhost:4088/api'}/ai/chat`,
+                `${process.env.REACT_APP_API_URL || 'http://localhost:4088/api'}/ai/chat`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ noteId, message, history: chatMessages.slice(-20) })
+                    body: JSON.stringify({ noteId, message, history: chatMessages.slice(-20) }),
                 }
             );
 
@@ -41,62 +74,181 @@ const AIChat = ({ noteId, onClose }) => {
                 const { done, value } = await reader.read();
                 if (done) break;
                 const text = decoder.decode(value);
-                const lines = text.split('\n').filter(l => l.startsWith('data: '));
+                const lines = text.split('\n').filter((l) => l.startsWith('data: '));
                 for (const line of lines) {
                     const payload = JSON.parse(line.slice(6));
                     if (payload.token) dispatch(appendStreamToken(payload.token));
-                    if (payload.done || payload.error) {
-                        dispatch(finalizeAssistantMessage());
-                    }
+                    if (payload.done || payload.error) dispatch(finalizeAssistantMessage());
                 }
             }
-        } catch (error) {
+        } catch {
             dispatch(finalizeAssistantMessage());
         }
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            void handleSend();
+        }
+    };
+
+    const isEmpty = chatMessages.length === 0 && !chatStreaming;
+
     return (
-        <div className="fixed right-0 top-0 h-full w-80 bg-white dark:bg-gray-900 shadow-2xl flex flex-col z-50">
-            <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
-                <h3 className="font-semibold dark:text-white">Ask about this note</h3>
-                <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {chatMessages.map((m, i) => (
-                    <div
-                        key={`${m.role}-${i}`}
-                        className={`text-sm p-2 rounded-lg ${m.role === 'user'
-                            ? 'bg-yellow-100 dark:bg-yellow-900/30 ml-8 text-right'
-                            : 'bg-gray-100 dark:bg-gray-800 mr-8'}`}
+        <>
+            {/* Backdrop scrim */}
+            <div
+                className="fixed inset-0 z-40 bg-black/20 dark:bg-black/40 backdrop-blur-[1px]"
+                onClick={onClose}
+                aria-hidden="true"
+            />
+
+            {/* Slide-in panel */}
+            <aside
+                role="dialog"
+                aria-modal="true"
+                aria-label="AI Chat"
+                className={`fixed right-0 top-0 h-full z-50 flex flex-col w-[360px]
+                    bg-surface-raised dark:bg-dark-raised
+                    shadow-panel rounded-l-panel
+                    border-l border-border dark:border-dark-border
+                    transition-transform duration-300 ease-out
+                    ${visible ? 'translate-x-0' : 'translate-x-full'}`}
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between gap-3 px-panel-x py-4
+                    border-b border-border dark:border-dark-border shrink-0">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="flex items-center justify-center w-7 h-7
+                            rounded-button bg-accent-subtle text-accent shrink-0">
+                            <SparkIcon className="w-4 h-4" />
+                        </span>
+                        <div className="min-w-0">
+                            <p className="text-caption font-semibold text-ink dark:text-ink-inverse leading-tight">
+                                AI Chat
+                            </p>
+                            {noteTitle && (
+                                <p className="text-caption text-ink-secondary dark:text-ink-inverse-secondary
+                                    truncate leading-tight mt-0.5">
+                                    {noteTitle}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Close chat"
+                        className="flex items-center justify-center w-7 h-7 rounded-button shrink-0
+                            text-ink-secondary dark:text-ink-inverse-secondary
+                            hover:bg-surface-inset dark:hover:bg-dark-inset
+                            hover:text-ink dark:hover:text-ink-inverse
+                            transition-colors duration-150"
                     >
-                        {m.content}
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+                            <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22z" />
+                        </svg>
+                    </button>
+                </div>
+
+                {/* Message list */}
+                <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+                    {isEmpty ? (
+                        <div className="flex flex-col items-center justify-center h-full gap-3 text-center pb-8">
+                            <span className="flex items-center justify-center w-12 h-12
+                                rounded-panel bg-accent-subtle text-accent">
+                                <SparkIcon className="w-6 h-6" />
+                            </span>
+                            <p className="text-small text-ink-secondary dark:text-ink-inverse-secondary max-w-[200px]">
+                                Ask me anything about this note
+                            </p>
+                        </div>
+                    ) : (
+                        chatMessages.map((m, i) => (
+                            <div
+                                key={`${m.role}-${i}`}
+                                className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                            >
+                                <div className={`max-w-[82%] px-3 py-2 text-small leading-relaxed
+                                    ${ m.role === 'user'
+                                        ? 'bg-accent-subtle dark:bg-yellow-900/20 text-ink dark:text-ink-inverse rounded-l-2xl rounded-tr-2xl rounded-br-sm'
+                                        : 'bg-surface-inset dark:bg-dark-inset text-ink dark:text-ink-inverse rounded-r-2xl rounded-tl-2xl rounded-bl-sm'
+                                    }`}
+                                >
+                                    {m.content}
+                                </div>
+                            </div>
+                        ))
+                    )}
+
+                    {/* Streaming assistant response */}
+                    {chatStreaming && (
+                        <div className="flex justify-start">
+                            <div className="max-w-[82%] px-3 py-2 text-small leading-relaxed
+                                bg-surface-inset dark:bg-dark-inset text-ink dark:text-ink-inverse
+                                rounded-r-2xl rounded-tl-2xl rounded-bl-sm">
+                                {streamingContent ? (
+                                    <>
+                                        {streamingContent}
+                                        <span className="inline-block w-px h-3 bg-accent ml-0.5 opacity-75 animate-pulse" />
+                                    </>
+                                ) : (
+                                    <TypingDots />
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <div ref={messagesEndRef} />
+                </div>
+
+                {/* Input footer */}
+                <div className="px-4 py-3 border-t border-border dark:border-dark-border
+                    bg-surface dark:bg-dark shrink-0">
+                    <div className="flex gap-2 items-end">
+                        <textarea
+                            ref={textareaRef}
+                            rows={1}
+                            value={input}
+                            onChange={(e) => {
+                                setInput(e.target.value);
+                                e.target.style.height = 'auto';
+                                e.target.style.height = `${Math.min(e.target.scrollHeight, 96)}px`;
+                            }}
+                            onKeyDown={handleKeyDown}
+                            disabled={chatStreaming}
+                            placeholder="Ask a question…"
+                            className="flex-1 resize-none overflow-hidden
+                                rounded-input border border-border dark:border-dark-border
+                                bg-surface-inset dark:bg-dark-inset
+                                text-small text-ink dark:text-ink-inverse
+                                placeholder:text-ink-secondary/50 dark:placeholder:text-ink-inverse-secondary/50
+                                px-3 py-2 outline-none
+                                focus:ring-2 focus:ring-accent/40 focus:border-accent/60
+                                transition-shadow duration-150
+                                disabled:opacity-50"
+                            style={{ height: '38px' }}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => void handleSend()}
+                            disabled={chatStreaming || !input.trim()}
+                            aria-label="Send message"
+                            className="flex items-center justify-center w-9 h-9 shrink-0
+                                bg-accent hover:bg-accent-hover active:scale-95
+                                text-accent-fg rounded-button
+                                disabled:opacity-40 disabled:cursor-not-allowed
+                                transition-all duration-150"
+                        >
+                            <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+                                <path d="M3.105 2.289a.75.75 0 0 0-.826.95l1.414 4.925A1.5 1.5 0 0 0 5.135 9.25h6.115a.75.75 0 0 1 0 1.5H5.135a1.5 1.5 0 0 0-1.442 1.086l-1.414 4.926a.75.75 0 0 0 .826.95 28.896 28.896 0 0 0 15.293-7.154.75.75 0 0 0 0-1.115A28.897 28.897 0 0 0 3.105 2.289z" />
+                            </svg>
+                        </button>
                     </div>
-                ))}
-                {chatStreaming && streamingContent && (
-                    <div className="text-sm p-2 rounded-lg bg-gray-100 dark:bg-gray-800 mr-8">
-                        {streamingContent}<span className="animate-pulse">▋</span>
-                    </div>
-                )}
-            </div>
-            <div className="p-4 border-t dark:border-gray-700 flex gap-2">
-                <input
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSend()}
-                    disabled={chatStreaming}
-                    placeholder="Ask a question..."
-                    className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none
-                               focus:ring-2 focus:ring-yellow-400 dark:bg-gray-800 dark:text-white"
-                />
-                <button
-                    onClick={handleSend}
-                    disabled={chatStreaming}
-                    className="px-3 py-2 bg-yellow-400 rounded-lg text-sm font-medium disabled:opacity-50"
-                >
-                    →
-                </button>
-            </div>
-        </div>
+                </div>
+            </aside>
+        </>
     );
 };
 
