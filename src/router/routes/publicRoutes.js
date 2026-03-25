@@ -5,6 +5,7 @@ const Register = lazy(() => import('../../views/auth/Register'));
 const Home = lazy(() => import('../../views/Home'));
 const UnAuthorized = lazy(() => import('../../views/UnAuthorized'));
 const SharedNote = lazy(() => import('../../views/public/SharedNote'));
+const NotFound = lazy(() => import('../../views/NotFound'));
 
 const publicRoutes =[
     {
@@ -24,12 +25,16 @@ const publicRoutes =[
         element: <Register />
     },
     {
-        path: 'unauthorized',
+        path: '/unauthorized',
         element: <UnAuthorized />
     },
     {
         path: '/s/:shareToken',
         element: <SharedNote />
+    },
+    {
+        path: '*',
+        element: <NotFound />
     }
 ]
 
