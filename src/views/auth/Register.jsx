@@ -5,94 +5,161 @@ import { user_register, messageClear } from '../../store/Reducers/authReducer';
 import { BeatLoader } from 'react-spinners';
 import toast from 'react-hot-toast';
 
-const Register = () => {
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
-    const {loader, errorMessage, successMessage} = useSelector(state => state.auth)
-    const { darkMode } = useSelector(state => state.theme)
-    const [state, setState] = useState({
-        name: '',
-        email: '',
-        password: ''
-    })
+// DEV NOTE — BUG FIX APPLIED:
+// Previously navigate('/') after registration. Corrected to navigate('/login')
+// so users land on the sign-in page after creating an account.
+// The register action does not auto-authenticate, so navigating to '/' would
+// drop the user at the root without a session.
 
-    const inputHandler = (e) => {
-        setState({
-            ...state,
-            [e.target.name]: e.target.value
-        })
-    }
-    const submitHandler = (e) => {
-        e.preventDefault()
-        dispatch(user_register(state))
-    }
+const SparkIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5" aria-hidden="true">
+        <path d="M15.98 1.804a1 1 0 0 0-1.96 0l-.24 1.192a1 1 0 0 1-.784.785l-1.192.238a1 1 0 0 0 0 1.962l1.192.238a1 1 0 0 1 .785.785l.238 1.192a1 1 0 0 0 1.962 0l.238-1.192a1 1 0 0 1 .785-.785l1.192-.238a1 1 0 0 0 0-1.962l-1.192-.238a1 1 0 0 1-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 0 0-1.898 0l-.683 2.051a1 1 0 0 1-.633.633l-2.051.683a1 1 0 0 0 0 1.898l2.051.683a1 1 0 0 1 .633.633l.683 2.051a1 1 0 0 0 1.898 0l.683-2.051a1 1 0 0 1 .633-.633l2.051-.683a1 1 0 0 0 0-1.898l-2.051-.683a1 1 0 0 1-.633-.633L6.95 5.684z" />
+    </svg>
+);
+
+const IconUser = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+        <path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003z" />
+    </svg>
+);
+
+const IconMail = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+        <path d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.162V6a2 2 0 0 0-2-2H3z" />
+        <path d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839z" />
+    </svg>
+);
+
+const IconLock = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+        <path fillRule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1zm3 8V5.5a3 3 0 1 0-6 0V9h6z" clipRule="evenodd" />
+    </svg>
+);
+
+const InputField = ({ label, icon, id, ...props }) => (
+    <div>
+        <label htmlFor={id} className="block text-caption font-medium text-ink-secondary dark:text-ink-inverse-secondary mb-1.5">
+            {label}
+        </label>
+        <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-secondary dark:text-ink-inverse-secondary pointer-events-none">
+                {icon}
+            </span>
+            <input
+                id={id}
+                className="w-full pl-10 pr-3 py-2 rounded-input border border-border dark:border-dark-border
+                    bg-surface-inset dark:bg-dark-inset
+                    text-ink dark:text-ink-inverse
+                    placeholder:text-ink-secondary/50 dark:placeholder:text-ink-inverse-secondary/40
+                    outline-none focus:shadow-focus focus:border-accent/60
+                    transition-shadow duration-150"
+                {...props}
+            />
+        </div>
+    </div>
+);
+
+const Register = () => {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { loader, errorMessage, successMessage } = useSelector((s) => s.auth);
+    const { darkMode } = useSelector((s) => s.theme);
+    const [state, setState] = useState({ name: '', email: '', password: '' });
+
+    const inputHandler = (e) => setState({ ...state, [e.target.name]: e.target.value });
+    const submitHandler = (e) => { e.preventDefault(); dispatch(user_register(state)); };
 
     useEffect(() => {
-        if (errorMessage){
-            toast.error(errorMessage)
-            dispatch(messageClear())
+        if (errorMessage) { toast.error(errorMessage); dispatch(messageClear()); }
+        if (successMessage) {
+            toast.success(successMessage);
+            dispatch(messageClear());
+            navigate('/login'); // BUG FIX: was navigate('/') — redirects to login, not root
         }
-        if (successMessage){
-            toast.success(successMessage)
-            dispatch(messageClear())
-            navigate('/')
-        }
-    }, [errorMessage, successMessage])
+    }, [errorMessage, successMessage, dispatch, navigate]);
 
-    const overrideStyle = {
-        display: 'flex',
-        margin: '0 auto',
-        height: '24px',
-        justifyContent: 'center',
-        alignItems: 'center',
-    }
     return (
-        <div className={`min-w-screen min-h-screen font-montserrat px-4 bg-gray-100 dark:bg-gray-900 transition-colors duration-200 flex flex-col justify-center items-center ${darkMode ? 'dark' : ''}`}>
-                    <div className='flex-col justify-center items-center'>
-                        <div className='mb-10 p-4'>
-                            <h2 className='text-center text-2xl font-semibold text-yellow-500 mb-3'>Create an Account</h2>
-                        </div>
-                        <div className='w-full max-w-sm bg-white p-6 rounded-lg shadow-lg dark:bg-gray-800 dark:text-white transition-colors duration-200'>
-                            <h3 className='text-center text-xl font-medium text-yellow-500 mb-8'>Sign Up</h3>
-                            <form onSubmit={submitHandler}>
-                            <div className='flex flex-row w-full gap-4 justify-center items-center mb-3'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 14 14" fill="none">
-                                        <path d="M13.6555 3.73932L7.09302 0.676819C7.03439 0.649475 6.96658 0.649475 6.90796 0.676819L0.345457 3.73932C0.268457 3.77519 0.219238 3.85241 0.219238 3.93751C0.219238 4.0226 0.268457 4.09982 0.345457 4.13569L6.90796 7.19819C6.93727 7.21197 6.96877 7.21876 7.00049 7.21876C7.03221 7.21876 7.06371 7.21197 7.09302 7.19819L9.40674 6.11844V11.7425L8.35368 13.2167C8.30621 13.2834 8.29964 13.3709 8.33727 13.4439C8.37467 13.5168 8.44971 13.5625 8.53174 13.5625H10.7192C10.8013 13.5625 10.8763 13.5168 10.9137 13.4439C10.9511 13.3709 10.9448 13.2834 10.8973 13.2167L9.84424 11.7425V5.91435L13.6555 4.13569C13.7325 4.09982 13.7817 4.0226 13.7817 3.93751C13.7817 3.85241 13.7325 3.77519 13.6555 3.73932Z" fill="#ADB5BD"/>
-                                        <path d="M8.96924 6.80551L7.27808 7.59476C7.19189 7.63479 7.09586 7.65622 7.00049 7.65622C6.90511 7.65622 6.80908 7.63479 6.72268 7.59476L2.40674 5.58051V9.18747C2.40674 10.414 4.42449 11.375 7.00049 11.375C7.71011 11.375 8.37489 11.2999 8.96924 11.1685V6.80551Z" fill="#ADB5BD"/>
-                                        <path d="M10.2817 6.19304V10.7317C11.0968 10.3388 11.5942 9.79607 11.5942 9.18751V5.58032L10.2817 6.19304Z" fill="#ADB5BD"/>
-                                    </svg>
-                                    <input onChange={inputHandler} value={state.name} className='px-3 py-2 outline-none border border-slate-800 bg-transparent rounded-md focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400' 
-                                    type="text" name='name' placeholder='Name' id='name' required/>
-                                </div>
-                                <div className='flex flex-row w-full gap-4 justify-center items-center mb-3 text-gray-600'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="18" viewBox="0 0 14 12" fill="none">
-                                        <path d="M7.42284 7.20313C7.2933 7.27452 7.1478 7.31196 6.99989 7.31196C6.85198 7.31196 6.70648 7.27452 6.57694 7.20313L0.4375 3.81622V10.1563C0.437847 10.5042 0.57624 10.8379 0.822306 11.0839C1.06837 11.33 1.40201 11.4684 1.75 11.4688H12.25C12.598 11.4684 12.9316 11.33 13.1777 11.0839C13.4238 10.8379 13.5622 10.5042 13.5625 10.1563V3.81622L7.42284 7.20313Z" fill="#ADB5BD"/>
-                                        <path d="M12.2505 0.53125H1.75049C1.4025 0.531597 1.06886 0.66999 0.822794 0.916056C0.576728 1.16212 0.438336 1.49576 0.437988 1.84375V2.9375C0.437973 2.97664 0.448459 3.01506 0.468351 3.04877C0.488243 3.08247 0.516813 3.11022 0.551082 3.12912L6.89483 6.62912C6.92719 6.64697 6.96354 6.65633 7.00049 6.65633C7.03744 6.65633 7.07379 6.64697 7.10614 6.62912L13.4499 3.12912C13.4842 3.11022 13.5127 3.08247 13.5326 3.04877C13.5525 3.01506 13.563 2.97664 13.563 2.9375V1.84375C13.5626 1.49576 13.4242 1.16212 13.1782 0.916056C12.9321 0.66999 12.5985 0.531597 12.2505 0.53125Z" fill="#ADB5BD"/>
-                                    </svg>
-                                    <input onChange={inputHandler} value={state.email} className='px-3 py-2 outline-none border border-gray-500 bg-transparent rounded-md focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400' 
-                                    type="email" name='email' placeholder='Email' id='email' required/>
-                                </div>
-                                <div className='flex flex-row w-full gap-4 justify-center items-center mb-6'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 10 14" fill="none">
-                                        <path d="M5 5.03131C2.58369 5.03131 0.625 6.99 0.625 9.40631C0.625 11.8226 2.58369 13.7813 5 13.7813C7.41631 13.7813 9.375 11.8226 9.375 9.40631C9.375 6.99 7.41631 5.03131 5 5.03131ZM5.21875 10.0429V11.3751H4.78125V10.0429C4.16066 9.93853 3.6875 9.40019 3.6875 8.75006C3.6875 8.02512 4.27506 7.43756 5 7.43756C5.72494 7.43756 6.3125 8.02512 6.3125 8.75006C6.3125 9.40019 5.83934 9.93853 5.21875 10.0429Z" fill="#ADB5BD"/>
-                                        <path d="M2.59424 5.24125V3.0625C2.59424 1.73578 3.67377 0.65625 5.00049 0.65625C6.32721 0.65625 7.40674 1.73578 7.40674 3.0625H7.84424C7.84424 1.4945 6.56849 0.21875 5.00049 0.21875C3.43249 0.21875 2.15674 1.4945 2.15674 3.0625V5.52694C2.29696 5.42391 2.44308 5.32875 2.59424 5.24125Z" fill="#ADB5BD"/>
-                                    </svg>
-                                    <input onChange={inputHandler} value={state.password} className='px-3 py-2 outline-none border border-gray-500 bg-transparent rounded-md focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400' 
-                                    type="password" name='password' placeholder='Password' id='password' required/>
-                                </div>
-                                <button disabled={loader ? true : false} className='flex min-h-10 w-40 justify-center items-center m-auto bg-yellow-400 text-white rounded-md py-2 px-3 hover:shadow-md hover:scale-105 transform duration-500'>
-                                    {
-                                        loader ? <BeatLoader cssOverride={overrideStyle} size={12} color='white'/> : 'Create Account'
-                                    }
-                                </button>
-                            </form>
-                            <div className='text-center text-sm text-gray-500 mt-5'>
-                                Already have an account? {' '}
-                                <p className='text-yellow-500 font-medium hover:underline'><Link to="/login">Sign In</Link></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div className={`min-h-screen font-montserrat bg-surface dark:bg-dark transition-colors duration-200
+            flex flex-col justify-center items-center px-4 py-12 ${darkMode ? 'dark' : ''}`}>
+
+            {/* Brand wordmark */}
+            <div className="flex items-center gap-2 mb-8 text-accent">
+                <SparkIcon />
+                <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'McLaren, cursive' }}>
+                    Noteshelf
+                </span>
+            </div>
+
+            {/* Auth card */}
+            <div className="w-full max-w-sm bg-surface-raised dark:bg-dark-raised rounded-card shadow-elevated
+                border border-border dark:border-dark-border px-8 py-8 transition-colors duration-200">
+
+                <h1 className="text-subheading font-semibold text-ink dark:text-ink-inverse text-center mb-6">
+                    Create your account
+                </h1>
+
+                <form onSubmit={submitHandler} className="flex flex-col gap-4">
+                    <InputField
+                        label="Name"
+                        id="name"
+                        icon={<IconUser />}
+                        type="text"
+                        name="name"
+                        placeholder="Your name"
+                        value={state.name}
+                        onChange={inputHandler}
+                        autoComplete="name"
+                        required
+                    />
+                    <InputField
+                        label="Email"
+                        id="email"
+                        icon={<IconMail />}
+                        type="email"
+                        name="email"
+                        placeholder="you@example.com"
+                        value={state.email}
+                        onChange={inputHandler}
+                        autoComplete="email"
+                        required
+                    />
+                    <InputField
+                        label="Password"
+                        id="password"
+                        icon={<IconLock />}
+                        type="password"
+                        name="password"
+                        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                        value={state.password}
+                        onChange={inputHandler}
+                        autoComplete="new-password"
+                        required
+                    />
+
+                    <button
+                        type="submit"
+                        disabled={loader}
+                        className="mt-2 w-full flex justify-center items-center min-h-[42px]
+                            bg-accent hover:bg-accent-hover active:bg-accent-pressed
+                            text-accent-fg font-semibold rounded-button
+                            transition-all duration-150
+                            disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                        {loader ? <BeatLoader size={6} color="#1A1714" /> : 'Create account'}
+                    </button>
+                </form>
+
+                <p className="text-center text-caption text-ink-secondary dark:text-ink-inverse-secondary mt-6">
+                    Already have an account?{' '}
+                    <Link
+                        to="/login"
+                        className="text-accent font-medium underline underline-offset-2 hover:text-accent-hover transition-colors"
+                    >
+                        Sign in
+                    </Link>
+                </p>
+            </div>
+        </div>
     );
 };
 
