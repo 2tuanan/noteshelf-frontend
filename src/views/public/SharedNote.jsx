@@ -71,16 +71,20 @@ const SharedNote = () => {
             <div className="max-w-2xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
 
                 {loading && (
-                    <div className="bg-surface-raised dark:bg-dark-raised
-                        border border-border dark:border-dark-border
-                        rounded-card shadow-card
-                        px-card-x py-card-y sm:p-8">
+                    <div
+                        role="status"
+                        aria-label="Loading note…"
+                        className="bg-surface-raised dark:bg-dark-raised
+                            border border-border dark:border-dark-border
+                            rounded-card shadow-card
+                            px-card-x py-card-y sm:p-8">
                         <Skeleton />
+                        <span className="sr-only">Loading note…</span>
                     </div>
                 )}
 
                 {!loading && error && (
-                    <div className="text-center py-24 space-y-3">
+                    <div role="alert" className="text-center py-24 space-y-3">
                         <span className="flex items-center justify-center w-14 h-14 rounded-panel
                             bg-accent-subtle text-accent mx-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"

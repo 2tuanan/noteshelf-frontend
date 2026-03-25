@@ -9,7 +9,8 @@ const DarkModeToggle = () => {
     return (
         <button
             type="button"
-            aria-label="Toggle dark mode"
+            aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-pressed={darkMode}
             onClick={() => dispatch(toggleDarkMode())}
             className="p-2 rounded-full hover:bg-black/15 dark:hover:bg-white/15 transition-colors text-accent-fg dark:text-ink-inverse"
         >

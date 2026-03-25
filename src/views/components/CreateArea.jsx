@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { BeatLoader } from 'react-spinners';
 import TiptapEditor from './TiptapEditor';
 
 const CreateArea = ({ input, handleChange, setInput, submitHandler, isExpanded, setIsExpanded, loader }) => {
     const expand = () => setIsExpanded(true);
+    const editorRef = useRef(null);
+
+    const handleTitleKeyDown = (e) => {
+        if (e.key !== 'Tab' || e.shiftKey) return;
+
+        e.preventDefault();
+        editorRef.current?.commands.focus('start');
+    };
 
     return (
         <div className="font-montserrat px-4">
@@ -13,8 +21,10 @@ const CreateArea = ({ input, handleChange, setInput, submitHandler, isExpanded, 
             >
                 {isExpanded && (
                     <input
+                        aria-label="Note title"
                         className="w-full bg-transparent border-b border-transparent focus:border-border dark:focus:border-dark-border outline-none px-0 pb-2 mb-3 text-subheading font-semibold text-ink dark:text-ink-inverse placeholder:text-ink-secondary/50 dark:placeholder:text-ink-inverse/40 transition-colors duration-150"
                         onChange={handleChange}
+                        onKeyDown={handleTitleKeyDown}
                         name="title"
                         value={input.title}
                         placeholder="Title"
@@ -25,6 +35,7 @@ const CreateArea = ({ input, handleChange, setInput, submitHandler, isExpanded, 
                 <div onClick={expand}>
                     <TiptapEditor
                         content={input.content}
+                        onEditorReady={(editor) => { editorRef.current = editor; }}
                         onChange={(html) => setInput({ ...input, content: html })}
                     />
                 </div>

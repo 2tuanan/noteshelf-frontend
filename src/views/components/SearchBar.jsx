@@ -33,7 +33,8 @@ const SearchBar = () => {
             </svg>
 
             <input
-                type="text"
+                type="search"
+                aria-label="Search notes"
                 placeholder="Search notes…"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
@@ -43,7 +44,7 @@ const SearchBar = () => {
                     rounded-input
                     text-body text-ink dark:text-ink-inverse
                     placeholder:text-ink-tertiary dark:placeholder:text-ink-inverse-tertiary
-                    outline-none focus:ring-2 focus:ring-black/25 dark:focus:ring-accent/40
+                    outline-none focus:ring-2 focus:ring-accent/40
                     transition-colors duration-150"
             />
 

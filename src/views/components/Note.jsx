@@ -51,10 +51,10 @@ const IconChevron = ({ open }) => (
 );
 
 // Reusable icon-button with shared hover style
-const IconBtn = ({ onClick, title, children, className = '' }) => (
+const IconBtn = ({ onClick, ariaLabel, children, className = '' }) => (
     <button
         type="button"
-        title={title}
+        aria-label={ariaLabel}
         onClick={onClick}
         className={`flex items-center justify-center w-7 h-7 rounded-button
             text-ink-secondary dark:text-ink-inverse-secondary
@@ -73,6 +73,7 @@ const Note = (props) => {
     const [editContent, setEditContent] = useState(props.content);
     const [showChat, setShowChat]       = useState(false);
     const [summaryOpen, setSummaryOpen] = useState(false);
+    const editorRef = React.useRef(null);
 
     useEffect(() => {
         if (!isEditing) {
@@ -90,6 +91,13 @@ const Note = (props) => {
         setEditTitle(props.title);
         setEditContent(props.content);
         setIsEditing(false);
+    };
+
+    const handleTitleKeyDown = (e) => {
+        if (e.key !== 'Tab' || e.shiftKey) return;
+
+        e.preventDefault();
+        editorRef.current?.commands.focus('start');
     };
 
     const isHtml = props.contentType === 'html' ||
@@ -115,7 +123,7 @@ const Note = (props) => {
                             {props.title}
                         </h2>
                         <IconBtn
-                            title="Delete note"
+                            ariaLabel="Delete note"
                             onClick={() => props.onDelete(props.id)}
                             className="shrink-0 opacity-0 group-hover:opacity-100
                                 hover:!bg-red-50 hover:!text-danger
@@ -172,7 +180,7 @@ const Note = (props) => {
                     {/* Icon toolbar */}
                     <div className="flex items-center gap-0.5">
                         {/* Edit */}
-                        <IconBtn title="Edit note" onClick={() => setIsEditing(true)}>
+                        <IconBtn ariaLabel="Edit note" onClick={() => setIsEditing(true)}>
                             <IconEdit />
                         </IconBtn>
 
@@ -188,7 +196,7 @@ const Note = (props) => {
 
                         {/* AI Chat */}
                         <IconBtn
-                            title="Chat with AI about this note"
+                            ariaLabel="Chat with AI about this note"
                             onClick={() => setShowChat((v) => !v)}
                             className={showChat
                                 ? 'bg-accent-subtle text-accent dark:bg-yellow-900/20 dark:text-yellow-300'
@@ -202,7 +210,7 @@ const Note = (props) => {
 
                         {/* AI Summarize — in toolbar for easy access */}
                         <IconBtn
-                            title="Summarize with AI"
+                            ariaLabel="Summarize with AI"
                             onClick={() => setSummaryOpen(true)}
                         >
                             <IconSparkle />
@@ -214,8 +222,10 @@ const Note = (props) => {
                 <>
                     <input
                         type="text"
+                        aria-label="Note title"
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
+                        onKeyDown={handleTitleKeyDown}
                         placeholder="Title"
                         className="w-full mb-3 px-input-x py-input-y text-subheading font-semibold
                             bg-surface-inset dark:bg-dark-inset
@@ -227,6 +237,7 @@ const Note = (props) => {
                     />
                     <TiptapEditor
                         content={editContent}
+                        onEditorReady={(editor) => { editorRef.current = editor; }}
                         onChange={(html) => setEditContent(html)}
                     />
                     <div className="flex items-center gap-2 mt-3">

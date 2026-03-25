@@ -9,13 +9,14 @@ const Header = () => {
     const url = process.env.REACT_APP_FRONTEND_DOMAIN;
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const triggerRef = useRef(null);
     const dispatch = useDispatch();
     const { userInfo, role } = useSelector((state) => state.auth);
     const navigate = useNavigate();
     const { pathname } = useLocation();
     const showSearch = pathname === '/user';
 
-    // Close dropdown when clicking outside the user section
+    // Close dropdown on outside click
     useEffect(() => {
         const handler = (e) => {
             if (!dropdownRef.current?.contains(e.target)) setIsDropdownOpen(false);
@@ -23,6 +24,19 @@ const Header = () => {
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
     }, []);
+
+    // Close dropdown on Escape and return focus to trigger
+    useEffect(() => {
+        if (!isDropdownOpen) return undefined;
+        const handler = (e) => {
+            if (e.key === 'Escape') {
+                setIsDropdownOpen(false);
+                triggerRef.current?.focus();
+            }
+        };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [isDropdownOpen]);
 
     return (
         <header className="sticky top-0 z-30
@@ -59,6 +73,10 @@ const Header = () => {
                     {/* User button */}
                     <button
                         type="button"
+                        ref={triggerRef}
+                        aria-label="User menu"
+                        aria-expanded={isDropdownOpen}
+                        aria-haspopup="menu"
                         onClick={() => setIsDropdownOpen((v) => !v)}
                         className="flex items-center gap-2 rounded-button px-2 py-1.5
                             text-accent-fg dark:text-ink-inverse
@@ -87,6 +105,7 @@ const Header = () => {
                         {/* Chevron */}
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                             fill="currentColor"
+                            aria-hidden="true"
                             className={`w-3.5 h-3.5 opacity-60 hidden sm:block transition-transform duration-150
                                 ${isDropdownOpen ? 'rotate-180' : ''}`}>
                             <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06z" clipRule="evenodd" />
@@ -95,13 +114,17 @@ const Header = () => {
 
                     {/* Dropdown menu — positioned relative to this container */}
                     {isDropdownOpen && (
-                        <div className="absolute top-full right-0 mt-2 z-50
-                            w-48 py-1
-                            bg-surface-raised dark:bg-dark-raised
-                            border border-border dark:border-dark-border
-                            rounded-card shadow-elevated dark:shadow-elevated-dark">
+                        <div
+                            role="menu"
+                            aria-label="User options"
+                            className="absolute top-full right-0 mt-2 z-50
+                                w-48 py-1
+                                bg-surface-raised dark:bg-dark-raised
+                                border border-border dark:border-dark-border
+                                rounded-card shadow-elevated dark:shadow-elevated-dark">
                             <button
                                 type="button"
+                                role="menuitem"
                                 onClick={() => dispatch(logout({ navigate, role }))}
                                 className="flex items-center gap-2 w-full px-4 py-2.5
                                     text-small text-ink dark:text-ink-inverse
@@ -111,6 +134,7 @@ const Header = () => {
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"
+                                    aria-hidden="true"
                                     className="w-4 h-4 shrink-0">
                                     <path strokeLinecap="round" strokeLinejoin="round"
                                         d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />

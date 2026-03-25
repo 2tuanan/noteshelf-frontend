@@ -115,6 +115,7 @@ const Login = () => {
                     <button
                         type="submit"
                         disabled={loader}
+                        aria-busy={loader}
                         className="mt-2 w-full flex justify-center items-center min-h-[42px]
                             bg-accent hover:bg-accent-hover active:bg-accent-pressed
                             text-accent-fg font-semibold rounded-button
