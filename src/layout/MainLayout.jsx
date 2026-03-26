@@ -16,7 +16,6 @@ const MainLayout = () => {
             <main className="flex-1">
                 <Outlet />
             </main>
-            {/* Canvas/board pages are infinite — no footer disrupting the flow */}
             {pathname !== '/user' && <Footer />}
         </div>
     );

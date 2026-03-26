@@ -43,13 +43,6 @@ const IconSparkle = () => (
         <path d="M15.98 1.804a1 1 0 0 0-1.96 0l-.24 1.192a1 1 0 0 1-.784.785l-1.192.238a1 1 0 0 0 0 1.962l1.192.238a1 1 0 0 1 .785.785l.238 1.192a1 1 0 0 0 1.962 0l.238-1.192a1 1 0 0 1 .785-.785l1.192-.238a1 1 0 0 0 0-1.962l-1.192-.238a1 1 0 0 1-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 0 0-1.898 0l-.683 2.051a1 1 0 0 1-.633.633l-2.051.683a1 1 0 0 0 0 1.898l2.051.683a1 1 0 0 1 .633.633l.683 2.051a1 1 0 0 0 1.898 0l.683-2.051a1 1 0 0 1 .633-.633l2.051-.683a1 1 0 0 0 0-1.898l-2.051-.683a1 1 0 0 1-.633-.633L6.95 5.684z" />
     </svg>
 );
-const IconChevron = ({ open }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-        className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
-        <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06z" clipRule="evenodd" />
-    </svg>
-);
-
 // Reusable icon-button with shared hover style
 const IconBtn = ({ onClick, ariaLabel, children, className = '' }) => (
     <button
@@ -120,7 +113,7 @@ const Note = (props) => {
                     <div className="flex items-start justify-between gap-2 mb-2">
                         <h2 className="text-subheading font-montserrat font-semibold leading-snug
                             text-ink dark:text-ink-inverse flex-1 min-w-0 break-words">
-                            {props.title}
+                            {String(props.title ?? '')}
                         </h2>
                         <IconBtn
                             ariaLabel="Delete note"
@@ -147,7 +140,7 @@ const Note = (props) => {
                         ) : (
                             <p className="text-body text-ink-secondary dark:text-ink-inverse-secondary
                                 line-clamp-4 whitespace-pre-wrap break-words">
-                                {props.content}
+                                {String(props.content ?? '')}
                             </p>
                         )}
                     </div>
