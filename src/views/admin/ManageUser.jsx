@@ -52,7 +52,7 @@ const ManageUser = () => {
                     </span>
                 </div>
                 <div className="ml-auto text-small text-ink-secondary dark:text-ink-inverse-secondary">
-                    {users.length} user{users.length !== 1 ? 's' : ''}
+                    {String(users?.length || 0)} user{(users?.length || 0) !== 1 ? 's' : ''}
                 </div>
             </div>
 
@@ -123,7 +123,7 @@ const ManageUser = () => {
                                         <td className="px-5 py-3.5 text-right">
                                             <span className="text-small font-medium
                                                 text-ink dark:text-ink-inverse">
-                                                {user.noteTotal || 0}
+                                                {String(user.noteTotal || 0)}
                                             </span>
                                         </td>
                                         <td className="px-5 py-3.5">
@@ -188,7 +188,7 @@ const ManageUser = () => {
                                         </div>
                                         <span className="shrink-0 text-caption
                                             text-ink-secondary dark:text-ink-inverse-secondary">
-                                            {user.noteTotal || 0} note{(user.noteTotal || 0) !== 1 ? 's' : ''}
+                                            {String(user.noteTotal || 0)} note{(user.noteTotal || 0) !== 1 ? 's' : ''}
                                         </span>
                                     </div>
                                     <div className="flex gap-2">

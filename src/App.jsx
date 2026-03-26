@@ -8,8 +8,10 @@ import { get_user_info } from "./store/Reducers/authReducer";
 function App() {
   const dispatch = useDispatch()
   const darkMode = useSelector((state) => state.theme.darkMode)
+  const { role, userInfo, token } = useSelector((state) => state.auth)
   const [allRoutes, setAllRoutes] = useState([...publicRoutes])
   const [authReady, setAuthReady] = useState(false)
+  const [bootstrappedAuth, setBootstrappedAuth] = useState(false)
 
   useLayoutEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode)
@@ -21,10 +23,20 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (bootstrappedAuth) return
+
+    setBootstrappedAuth(true)
+    const isAuthenticated = Boolean(role || userInfo || token)
+
+    if (!isAuthenticated) {
+      setAuthReady(true)
+      return
+    }
+
     dispatch(get_user_info()).finally(() => {
       setAuthReady(true)
     })
-  }, [])
+  }, [dispatch, role, userInfo, token, bootstrappedAuth])
 
   if (!authReady) {
     return null

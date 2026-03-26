@@ -102,6 +102,9 @@ export const authReducer = createSlice({
         .addCase(admin_login.fulfilled, (state, {payload}) => {
             state.loader = false;
             state.successMessage = payload.message;
+            state.userInfo = payload.userInfo || state.userInfo;
+            state.role = payload.userInfo?.role || payload.role || state.role;
+            state.token = payload.token || state.token;
         })
         .addCase(user_login.pending, (state, {payload}) => {
             state.loader = true;
@@ -113,6 +116,9 @@ export const authReducer = createSlice({
         .addCase(user_login.fulfilled, (state, {payload}) => {
             state.loader = false;
             state.successMessage = payload.message;
+            state.userInfo = payload.userInfo || state.userInfo;
+            state.role = payload.userInfo?.role || payload.role || state.role;
+            state.token = payload.token || state.token;
         })
         .addCase(user_register.pending, (state, {payload}) => {
             state.loader = true;
@@ -124,6 +130,15 @@ export const authReducer = createSlice({
         .addCase(user_register.fulfilled, (state, {payload}) => {
             state.loader = false;
             state.successMessage = payload.message;
+            state.userInfo = payload.userInfo || state.userInfo;
+            state.role = payload.userInfo?.role || payload.role || state.role;
+            state.token = payload.token || state.token;
+        })
+        .addCase(get_user_info.rejected, (state) => {
+            state.loader = false;
+            state.userInfo = '';
+            state.role = '';
+            state.token = '';
         })
         .addCase(get_user_info.fulfilled, (state, {payload}) => {
             state.loader = false;
